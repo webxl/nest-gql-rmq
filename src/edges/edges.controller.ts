@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
+import { MessagePattern } from '@nestjs/microservices';
 import { CreateEdgeInput } from './dto/create-edge.input';
 import { EdgesService } from './edges.service';
 
@@ -13,23 +13,12 @@ export class EdgesController {
   }
 
   @MessagePattern({ cmd: 'edge' })
-  async handleEdge(data: string, @Ctx() context: RmqContext) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-
-    const result = await this.edgesService.getEdge(data);
-
-    channel.sendToQueue(
-      originalMsg.properties.replyTo,
-      Buffer.from(JSON.stringify(result)),
-      { correlationId: originalMsg.properties.correlationId },
-    );
-
-    return result;
+  async handleEdge(data: string) {
+    return await this.edgesService.getEdge(data);
   }
 
   @MessagePattern({ cmd: 'createEdge' })
-  createEdge(data: CreateEdgeInput) {
+  async createEdge(data: CreateEdgeInput) {
     return this.edgesService.createEdge(data);
   }
 }
