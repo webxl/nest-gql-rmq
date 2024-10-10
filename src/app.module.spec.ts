@@ -52,6 +52,7 @@ describe('Edges Integration', () => {
         queue: 'edges_test_queue',
         queueOptions: {
           durable: false,
+          timeoutMs: 10000,
         },
       },
     });
